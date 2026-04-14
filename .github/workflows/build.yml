@@ -18,20 +18,15 @@ jobs:
             jdk_version: "16"
             java_release: "16"
 
-          - target_name: "1.18-1.19"
-            api_jar: "spigot-api-1.19.3-R0.1-SNAPSHOT.jar"
+          - target_name: "1.18-1.20.4"
+            api_jar: "spigot-api-1.20.1-R0.1-SNAPSHOT.jar"
             jdk_version: "17"
             java_release: "17"
 
-          - target_name: "1.20-1.20.4"
-            api_jar: "spigot-api-1.20.1-R0.1-SNAPSHOT.jar"
+          - target_name: "1.20.5-1.21.x"
+            api_jar: "spigot-api-1.21.1-R0.1-SNAPSHOT.jar"
             jdk_version: "21"
             java_release: "21"
-
-          - target_name: "1.20.5-26.1.2"
-            api_jar: "spigot-api-1.21.1-R0.1-SNAPSHOT.jar"
-            jdk_version: "25"
-            java_release: "25"
 
     steps:
       - name: 檢出專案程式碼
