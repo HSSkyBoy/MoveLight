@@ -1,0 +1,66 @@
+name: Build MoveLight
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target_name: "1.17"
+            api_jar: "spigot-api-1.17-R0.1-SNAPSHOT.jar"
+            jdk_version: "16"
+            java_release: "16"
+
+          - target_name: "1.18-1.19"
+            api_jar: "spigot-api-1.19.3-R0.1-SNAPSHOT.jar"
+            jdk_version: "17"
+            java_release: "17"
+
+          - target_name: "1.20-1.20.4"
+            api_jar: "spigot-api-1.20.1-R0.1-SNAPSHOT.jar"
+            jdk_version: "21"
+            java_release: "21"
+
+          - target_name: "1.20.5-26.1.2"
+            api_jar: "spigot-api-1.21.1-R0.1-SNAPSHOT.jar"
+            jdk_version: "25"
+            java_release: "25"
+
+    steps:
+      - name: 檢出專案程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Zulu JDK ${{ matrix.jdk_version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.jdk_version }}
+          distribution: 'zulu'
+
+      - name: 編譯與打包 MoveLight (${{ matrix.target_name }})
+        run: |
+          mkdir -p out/classes
+          
+          if [ ! -f "lib/${{ matrix.api_jar }}" ]; then
+            echo "錯誤：在 lib/ 目錄下找不到 ${{ matrix.api_jar }}，請確認檔案已經 Commit 並且檔名正確！"
+            exit 1
+          fi
+          
+          javac --release ${{ matrix.java_release }} -d out/classes -cp "lib/${{ matrix.api_jar }}" src/top/kuoer/*.java
+          
+          cp resources/plugin.yml out/classes/
+          if [ -f resources/config.yml ]; then cp resources/config.yml out/classes/; fi
+          
+          jar cvf MoveLight-${{ matrix.target_name }}.jar -C out/classes .
+
+      - name: 上傳構件產物
+        uses: actions/upload-artifact@v4
+        with:
+          name: MoveLight-${{ matrix.target_name }}
+          path: MoveLight-${{ matrix.target_name }}.jar
