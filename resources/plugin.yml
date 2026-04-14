@@ -1,7 +1,7 @@
 name: MoveLight
-main: top.kuoer.MoveLight
+main: top.nkbe.MoveLight
 version: 1.2.0
-author: _TwT, NkBe
+author: NkBe, _TwT
 api-version: 1.17
 commands:
   movel:

@@ -52,7 +52,7 @@ jobs:
             exit 1
           fi
           
-          javac --release ${{ matrix.java_release }} -d out/classes -cp "lib/${{ matrix.api_jar }}" src/top/kuoer/*.java
+          javac --release ${{ matrix.java_release }} -d out/classes -cp "lib/${{ matrix.api_jar }}" src/top/nkbe/*.java
           
           cp resources/plugin.yml out/classes/
           if [ -f resources/config.yml ]; then cp resources/config.yml out/classes/; fi

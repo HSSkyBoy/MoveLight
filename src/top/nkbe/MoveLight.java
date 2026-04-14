@@ -1,4 +1,4 @@
-package top.kuoer;
+package top.nkbe;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
