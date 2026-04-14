@@ -1,8 +1,8 @@
 name: MoveLight
 main: top.kuoer.MoveLight
-version: 1.1.5
-author: _TwT
-api-version: 1.16
+version: 1.2.0
+author: _TwT, NkBe
+api-version: 1.17
 commands:
   movel:
     description: 插件主命令

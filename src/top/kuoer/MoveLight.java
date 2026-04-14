@@ -1,119 +1,114 @@
 package top.kuoer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collections;
-
 public class MoveLight extends JavaPlugin implements Listener {
 
-    private TaskTimer taskTimer;
+    private LightManager lightManager;
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
+        Bukkit.getPluginManager().registerEvents(this, this);
 
-        this.taskTimer = new TaskTimer(this);
-        this.taskTimer.runTaskTimer(this, 0, getConfig().getInt("refresh"));
-        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移动光源加载成功");
+        startLightTask();
+        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移動光源加載成功 (虛擬封包模式)");
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §6正在卸载移动光源");
+        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §6正在卸載移動光源...");
 
-        this.taskTimer.cancel();
-        this.taskTimer.removeAllPlayerLight();
+        if (this.lightManager != null) {
+            this.lightManager.removeAllPlayerLight();
+            this.lightManager.cancel();
+        }
 
-        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移动光源卸载完成");
+        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移動光源卸載完成");
     }
 
-
-
+    //定時重啟
+    private void startLightTask() {
+        if (this.lightManager != null) {
+            this.lightManager.cancel();
+        }
+        this.lightManager = new LightManager(this);
+        long refreshTicks = getConfig().getInt("refresh", 2);
+        this.lightManager.runTaskTimer(this, 0, refreshTicks);
+    }
 
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent e) {
-        this.taskTimer.removePlayerLight(e.getPlayer());
+        if (this.lightManager != null) {
+            // 玩家退出時清除狀態
+            this.lightManager.removePlayerLight(e.getPlayer());
+        }
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(args.length < 1) {
+        if (args.length < 1 || args[0].equalsIgnoreCase("help")) {
             this.showHelp(sender);
-        } else {
-            if(args[0].equals("help")) {
-                this.showHelp(sender);
-            } else if(args[0].equals("reload")) {
-                this.reload(sender);
-            } else if(args[0].equals("toggle")) {
-                this.toggle(sender);
-            }
+        } else if (args[0].equalsIgnoreCase("reload")) {
+            this.reload(sender);
+        } else if (args[0].equalsIgnoreCase("toggle")) {
+            this.toggle(sender);
         }
-
         return true;
     }
 
     public void showHelp(CommandSender sender) {
-        if(!sender.hasPermission("movelight.help")) {
-            sender.sendMessage("§8[§aMoveLight§8] §c你没有权限使用该命令");
+        if (!sender.hasPermission("movelight.help")) {
+            sender.sendMessage("§8[§aMoveLight§8] §c你沒有權限使用該命令");
             return;
         }
 
         sender.sendMessage("");
-        sender.sendMessage(" §2§lMoveLight 移动光源");
+        sender.sendMessage(" §2§lMoveLight 虛擬移動光源");
         sender.sendMessage("");
-        sender.sendMessage(" §7§l· §a/movel reload §6§l- §7重载插件");
-        sender.sendMessage(" §7§l· §a/movel toggle §6§l- §7开关移动光源");
+        sender.sendMessage(" §7§l· §a/movel reload §6§l- §7重載插件");
+        sender.sendMessage(" §7§l· §a/movel toggle §6§l- §7開關移動光源");
         sender.sendMessage("");
     }
 
     public void reload(CommandSender sender) {
-        if(!sender.hasPermission("movelight.reload")) {
-            sender.sendMessage("§8[§aMoveLight§8] §c你没有权限使用该命令");
+        if (!sender.hasPermission("movelight.reload")) {
+            sender.sendMessage("§8[§aMoveLight§8] §c你沒有權限使用該命令");
             return;
         }
 
-        saveDefaultConfig();
         reloadConfig();
-        this.taskTimer.cancel();
-        this.taskTimer.removeAllPlayerLight();
-        this.taskTimer = new TaskTimer(this);
-        this.taskTimer.runTaskTimer(this, 0, getConfig().getInt("refresh"));
-        sender.sendMessage("§8[§aMoveLight§8] §a重载完成");
+        if (this.lightManager != null) {
+            this.lightManager.removeAllPlayerLight();
+        }
+        startLightTask();
+        sender.sendMessage("§8[§aMoveLight§8] §a重載完成！");
     }
 
     public void toggle(CommandSender sender) {
-        if(!sender.hasPermission("movelight.toggle")) {
-            sender.sendMessage("§8[§aMoveLight§8] §c你没有权限使用该命令");
+        if (!sender.hasPermission("movelight.toggle")) {
+            sender.sendMessage("§8[§aMoveLight§8] §c你沒有權限使用該命令");
             return;
         }
 
-        if(getConfig().getBoolean("enable")) {
-            getConfig().set("enable", false);
-            sender.sendMessage("§8[§aMoveLight§8] §6已经关闭移动光源");
-        } else {
-            getConfig().set("enable", true);
-            sender.sendMessage("§8[§aMoveLight§8] §6已经开启移动光源");
-        }
+        boolean currentState = getConfig().getBoolean("enable");
+        getConfig().set("enable", !currentState);
         saveConfig();
-        this.taskTimer.cancel();
-        this.taskTimer.removeAllPlayerLight();
-        this.taskTimer = new TaskTimer(this);
-        this.taskTimer.runTaskTimer(this, 0, getConfig().getInt("refresh"));
-    }
 
+        if (!currentState) {
+            sender.sendMessage("§8[§aMoveLight§8] §6已經開啟移動光源");
+        } else {
+            sender.sendMessage("§8[§aMoveLight§8] §6已經關閉移動光源");
+            if (this.lightManager != null) {
+                this.lightManager.removeAllPlayerLight();
+            }
+        }
+        startLightTask();
+    }
 }
