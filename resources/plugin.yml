@@ -1,11 +1,11 @@
 name: MoveLight
 main: top.nkbe.MoveLight
-version: 1.2.0
+version: 1.2.6
 author: NkBe, _TwT
 api-version: 1.17
 commands:
   movel:
-    description: 插件主命令
+    description: 完整命令
     usage: §a/<command> help 查看帮助
 permissions:
   movelight.help:

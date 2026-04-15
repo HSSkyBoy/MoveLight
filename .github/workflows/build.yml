@@ -28,6 +28,11 @@ jobs:
             jdk_version: "21"
             java_release: "21"
 
+          - target_name: "26.1"
+            api_jar: "spigot-api-26.1.2-R0.1-20260409.jar"
+            jdk_version: "25"
+            java_release: "25"
+
     steps:
       - name: 檢出專案程式碼
         uses: actions/checkout@v4

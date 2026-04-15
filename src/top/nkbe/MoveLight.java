@@ -18,7 +18,8 @@ public class MoveLight extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
 
         startLightTask();
-        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移動光源加載成功 (虛擬封包模式)");
+        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §e已啟用跨版本相容 (1.17 - 26.1.x)");
+        Bukkit.getConsoleSender().sendMessage("§8[§aMoveLight§8] §a移動光源加載成功");
     }
 
     @Override
@@ -69,7 +70,6 @@ public class MoveLight extends JavaPlugin implements Listener {
             return;
         }
 
-        sender.sendMessage("");
         sender.sendMessage(" §2§lMoveLight 虛擬移動光源");
         sender.sendMessage("");
         sender.sendMessage(" §7§l· §a/movel reload §6§l- §7重載插件");
